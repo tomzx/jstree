@@ -26,6 +26,16 @@
  * jslint: browser: true, ass: true, bitwise: true, continue: true, nomen: true, plusplus: true, regexp: true, unparam: true, todo: true, white: true
  */
 
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['jquery'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'));
+	} else {
+		factory(jQuery);
+	}
+}(function ($, undefined) {
+
 	// prevent another load? maybe there is a better way?
 	if ($.jstree) {
 		return;
@@ -3395,7 +3405,6 @@
 				tmp = $.inArray(obj.id, dpc);
 				if (tmp !== -1) {
 					dpc = $.vakata.array_remove(dpc, tmp);
-					if(pos > tmp) { pos--; }
 				}
 				tmp = [];
 				for (i = 0, j = dpc.length; i < j; i++) {
@@ -4185,13 +4194,23 @@
 	if ($.vakata.browser.msie && $.vakata.browser.version < 8) {
 		$.jstree.defaults.core.animation = 0;
 	}
-
+}));
 /**
  * ### Checkbox plugin
  *
  * This plugin renders checkbox icons in front of each node, making multiple selection much easier.
  * It also supports tri-state behavior, meaning that if a node has a few of its children checked it will be rendered as undetermined, and state will be propagated up.
  */
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.checkbox', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.checkbox) {
 		return;
@@ -4571,13 +4590,23 @@
 
 	// include the checkbox plugin by default
 	// $.jstree.defaults.plugins.push("checkbox");
-
+}));
 /**
  * ### Contextmenu plugin
  *
  * Shows a context menu when a node is right-clicked.
  */
 // TODO: move logic outside of function + check multiple move
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.contextmenu', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.contextmenu) {
 		return;
@@ -5216,12 +5245,22 @@
 		});
 	}($));
 	// $.jstree.defaults.plugins.push("contextmenu");
-
+}));
 /**
  * ### Drag'n'drop plugin
  *
  * Enables dragging and dropping of nodes in the tree, resulting in a move or copy operations.
  */
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.dnd', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.dnd) {
 		return;
@@ -5401,7 +5440,7 @@
 										'pos': v,
 										'is_multi': (data.data.origin && data.data.origin !== ins),
 										'is_foreign': (!data.data.origin)
-									
+									}));
 									if (!ok) {
 										if (ins && ins.last_error) {
 											laster = ins.last_error();
@@ -5776,12 +5815,22 @@
 
 	// include the dnd plugin by default
 	// $.jstree.defaults.plugins.push("dnd");
-
+}));
 /**
  * ### Search plugin
  *
  * Adds search functionality to jsTree.
  */
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.search', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.search) {
 		return;
@@ -6209,12 +6258,22 @@
 
 	// include the search plugin by default
 	// $.jstree.defaults.plugins.push("search");
-
+}));
 /**
  * ### Sort plugin
  *
  * Autmatically sorts all siblings in the tree according to a sorting function.
  */
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.sort', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.sort) {
 		return;
@@ -6271,12 +6330,22 @@
 
 	// include the sort plugin by default
 	// $.jstree.defaults.plugins.push("sort");
-
+}));
 /**
  * ### State plugin
  *
  * Saves the state of the tree (selected nodes, opened nodes) on the user's computer using available options (localStorage, cookies, etc)
  */
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.state', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.state) {
 		return;
@@ -6409,12 +6478,22 @@
 
 	// include the state plugin by default
 	// $.jstree.defaults.plugins.push("state");
-
+}));
 /**
  * ### Types plugin
  *
  * Makes it possible to add predefined types for groups of nodes, which make it possible to easily control nesting rules and icon for each group.
  */
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.types', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.types) {
 		return;
@@ -6679,12 +6758,22 @@
 	};
 	// include the types plugin by default
 	// $.jstree.defaults.plugins.push("types");
-
+}));
 /**
  * ### Unique plugin
  *
  * Enforces that no nodes with the same name can coexist as siblings.
  */
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.unique', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.unique) {
 		return;
@@ -6752,12 +6841,22 @@
 
 	// include the unique plugin by default
 	// $.jstree.defaults.plugins.push("unique");
-
+}));
 /**
  * ### Wholerow plugin
  *
  * Makes each node appear block level. Making selection easier. May cause slow down for large trees in old browsers.
  */
+
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.wholerow', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
+		factory(require('jquery'), require('jstree'));
+	} else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
 
 	if ($.jstree.plugins.wholerow) {
 		return;
@@ -6863,4 +6962,4 @@
 	};
 	// include the wholerow plugin by default
 	// $.jstree.defaults.plugins.push("wholerow");
-}));
+}));}));

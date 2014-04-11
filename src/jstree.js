@@ -3393,7 +3393,6 @@
 				tmp = $.inArray(obj.id, dpc);
 				if (tmp !== -1) {
 					dpc = $.vakata.array_remove(dpc, tmp);
-					if(pos > tmp) { pos--; }
 				}
 				tmp = [];
 				for (i = 0, j = dpc.length; i < j; i++) {
