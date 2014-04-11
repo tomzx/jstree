@@ -1,5 +1,4 @@
 /* global jQuery */
-
 // disable all events
 (function ($, undefined) {
 	"use strict";
@@ -10,12 +9,16 @@
 			this._data.trigger.disabled = false;
 		};
 		this.trigger = function (ev, data) {
-			if(!this._data.trigger.disabled) {
+			if (!this._data.trigger.disabled) {
 				parent.trigger.call(this, ev, data);
 			}
 		};
-		this.disable_events = function () { this._data.trigger.disabled = true; };
-		this.enable_events = function () { this._data.trigger.disabled = false; };
+		this.disable_events = function () {
+			this._data.trigger.disabled = true;
+		};
+		this.enable_events = function () {
+			this._data.trigger.disabled = false;
+		};
 	};
 })(jQuery);
 
@@ -30,12 +33,14 @@
 // conditional select
 (function ($, undefined) {
 	"use strict";
-	$.jstree.defaults.conditionalselect = function () { return true; };
+	$.jstree.defaults.conditionalselect = function () {
+		return true;
+	};
 
 	$.jstree.plugins.conditionalselect = function (options, parent) {
 		// own function
 		this.select_node = function (obj, supress_event, prevent_open) {
-			if(this.settings.conditionalselect.call(this, this.get_node(obj))) {
+			if (this.settings.conditionalselect.call(this, this.get_node(obj))) {
 				parent.select_node.call(this, obj, supress_event, prevent_open);
 			}
 		};
@@ -47,7 +52,9 @@
 	"use strict";
 	$.jstree.plugins.nostate = function () {
 		this.set_state = function (state, callback) {
-			if(callback) { callback.call(this); }
+			if (callback) {
+				callback.call(this);
+			}
 			this.trigger('set_state');
 		};
 	};
@@ -78,19 +85,19 @@
 			parent.bind.call(this);
 			this.element
 				.on("click.jstree", ".jstree-questionmark", $.proxy(function (e) {
-						e.stopImmediatePropagation();
-						this.settings.questionmark.call(this, this.get_node(e.target));
-					}, this));
+					e.stopImmediatePropagation();
+					this.settings.questionmark.call(this, this.get_node(e.target));
+				}, this));
 		};
 		this.teardown = function () {
-			if(this.settings.questionmark) {
+			if (this.settings.questionmark) {
 				this.element.find(".jstree-questionmark").remove();
 			}
 			parent.teardown.call(this);
 		};
-		this.redraw_node = function(obj, deep, callback) {
+		this.redraw_node = function (obj, deep, callback) {
 			obj = parent.redraw_node.call(this, obj, deep, callback);
-			if(obj) {
+			if (obj) {
 				var tmp = img.cloneNode(true);
 				obj.insertBefore(tmp, obj.childNodes[2]);
 			}
@@ -105,7 +112,9 @@
 	$.jstree.plugins.selectopens = function (options, parent) {
 		this.bind = function () {
 			parent.bind.call(this);
-			this.element.on('select_node.jstree', function (e, data) { data.instance.open_node(data.node); });
+			this.element.on('select_node.jstree', function (e, data) {
+				data.instance.open_node(data.node);
+			});
 		};
 	};
 })(jQuery);
@@ -116,9 +125,15 @@
 	$.jstree.plugins.nohover = function () {
 		this.paste = function (obj, pos) {
 			obj = this.get_node(obj);
-			if(!obj || !ccp_mode || !ccp_mode.match(/^(copy_node|move_node)$/) || !ccp_node) { return false; }
-			if(this[ccp_mode](ccp_node, obj, pos)) {
-				this.trigger('paste', { "parent" : obj.id, "node" : ccp_node, "mode" : ccp_mode });
+			if (!obj || !ccp_mode || !ccp_mode.match(/^(copy_node|move_node)$/) || !ccp_node) {
+				return false;
+			}
+			if (this[ccp_mode](ccp_node, obj, pos)) {
+				this.trigger('paste', {
+					"parent": obj.id,
+					"node": ccp_node,
+					"mode": ccp_mode
+				});
 			}
 			ccp_node = false;
 			ccp_mode = false;

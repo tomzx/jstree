@@ -7,18 +7,18 @@
 (function (factory) {
 	"use strict";
 	if (typeof define === 'function' && define.amd) {
-		define('jstree.sort', ['jquery','jstree'], factory);
-	}
-	else if(typeof exports === 'object') {
+		define('jstree.sort', ['jquery', 'jstree'], factory);
+	} else if (typeof exports === 'object') {
 		factory(require('jquery'), require('jstree'));
-	}
-	else {
+	} else {
 		factory(jQuery, jQuery.jstree);
 	}
 }(function ($, jstree, undefined) {
 	"use strict";
 
-	if($.jstree.plugins.sort) { return; }
+	if ($.jstree.plugins.sort) {
+		return;
+	}
 
 	/**
 	 * the settings function used to sort the nodes.
@@ -35,16 +35,16 @@
 			parent.bind.call(this);
 			this.element
 				.on("model.jstree", $.proxy(function (e, data) {
-						this.sort(data.parent, true);
-					}, this))
+					this.sort(data.parent, true);
+				}, this))
 				.on("rename_node.jstree create_node.jstree", $.proxy(function (e, data) {
-						this.sort(data.parent || data.node.parent, false);
-						this.redraw_node(data.parent || data.node.parent, true);
-					}, this))
+					this.sort(data.parent || data.node.parent, false);
+					this.redraw_node(data.parent || data.node.parent, true);
+				}, this))
 				.on("move_node.jstree copy_node.jstree", $.proxy(function (e, data) {
-						this.sort(data.parent, false);
-						this.redraw_node(data.parent, true);
-					}, this));
+					this.sort(data.parent, false);
+					this.redraw_node(data.parent, true);
+				}, this));
 		};
 		/**
 		 * used to sort a node's children
@@ -58,10 +58,10 @@
 		this.sort = function (obj, deep) {
 			var i, j;
 			obj = this.get_node(obj);
-			if(obj && obj.children && obj.children.length) {
+			if (obj && obj.children && obj.children.length) {
 				obj.children.sort($.proxy(this.settings.sort, this));
-				if(deep) {
-					for(i = 0, j = obj.children_d.length; i < j; i++) {
+				if (deep) {
+					for (i = 0, j = obj.children_d.length; i < j; i++) {
 						this.sort(obj.children_d[i], false);
 					}
 				}
