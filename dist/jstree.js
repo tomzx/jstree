@@ -1,17 +1,3 @@
-/*globals jQuery, define, exports, require, window, document */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define(['jquery'], factory);
-	}
-	else if(typeof exports === 'object') {
-		factory(require('jquery'));
-	}
-	else {
-		factory(jQuery);
-	}
-}(function ($, undefined) {
-	"use strict";
 /*!
  * jsTree 3.0.0
  * http://jstree.com/
@@ -21,20 +7,9 @@
  * Licensed same as jquery - under the terms of the MIT License
  *   http://www.opensource.org/licenses/mit-license.php
  */
-/*!
- * if using jslint please allow for the jQuery global and use following options:
- * jslint: browser: true, ass: true, bitwise: true, continue: true, nomen: true, plusplus: true, regexp: true, unparam: true, todo: true, white: true
- */
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define(['jquery'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'));
-	} else {
-		factory(jQuery);
-	}
-}(function ($, undefined) {
++function($) {
+	'use strict';
 
 	// prevent another load? maybe there is a better way?
 	if ($.jstree) {
@@ -46,12 +21,7 @@
 	 */
 
 	// internal variables
-	var instance_counter = 0,
-		ccp_node = false,
-		ccp_mode = false,
-		ccp_inst = false,
-		themes_loaded = [],
-		src = $('script:last').attr('src'),
+	var src = $('script:last').attr('src'),
 		_d = document,
 		_node = _d.createElement('LI'),
 		_temp1, _temp2;
@@ -69,13 +39,12 @@
 	_node.appendChild(_temp1);
 	_temp1 = _temp2 = null;
 
-
 	/**
 	 * holds all jstree related functions and variables, including the actual class and methods to create, access and manipulate instances.
 	 * @name $.jstree
 	 */
 	$.jstree = {
-		/** 
+		/**
 		 * specifies the jstree version in use
 		 * @name $.jstree.version
 		 */
@@ -97,173 +66,107 @@
 		 */
 		plugins: {},
 		path: src && src.indexOf('/') !== -1 ? src.replace(/\/[^\/]+$/, '') : '',
-		idregex: /[\\:&'".,=\- \/]/g
-	};
-	/**
-	 * creates a jstree instance
-	 * @name $.jstree.create(el [, options])
-	 * @param {DOMElement|jQuery|String} el the element to create the instance on, can be jQuery extended or a selector
-	 * @param {Object} options options for this instance (extends `$.jstree.defaults`)
-	 * @return {jsTree} the new instance
-	 */
-	$.jstree.create = function (el, options) {
-		var tmp = new $.jstree.core(++instance_counter),
-			opt = options;
-		options = $.extend(true, {}, $.jstree.defaults, options);
-		if (opt && opt.plugins) {
-			options.plugins = opt.plugins;
-		}
-		$.each(options.plugins, function (i, k) {
-			if (i !== 'core') {
-				tmp = tmp.plugin(k, options[k]);
-			}
-		});
-		tmp.init(el, options);
-		return tmp;
-	};
-	/**
-	 * the jstree class constructor, used only internally
-	 * @private
-	 * @name $.jstree.core(id)
-	 * @param {Number} id this instance's index
-	 */
-	$.jstree.core = function (id) {
-		this._id = id;
-		this._cnt = 0;
-		this._data = {
-			core: {
-				themes: {
-					name: false,
-					dots: false,
-					icons: false
-				},
-				selected: [],
-				last_error: {}
-			}
-		};
-	};
-	/**
-	 * get a reference to an existing instance
-	 *
-	 * __Examples__
-	 *
-	 *	// provided a container with an ID of "tree", and a nested node with an ID of "branch"
-	 *	// all of there will return the same instance
-	 *	$.jstree.reference('tree');
-	 *	$.jstree.reference('#tree');
-	 *	$.jstree.reference($('#tree'));
-	 *	$.jstree.reference(document.getElementByID('tree'));
-	 *	$.jstree.reference('branch');
-	 *	$.jstree.reference('#branch');
-	 *	$.jstree.reference($('#branch'));
-	 *	$.jstree.reference(document.getElementByID('branch'));
-	 *
-	 * @name $.jstree.reference(needle)
-	 * @param {DOMElement|jQuery|String} needle
-	 * @return {jsTree|null} the instance or `null` if not found
-	 */
-	$.jstree.reference = function (needle) {
-		var tmp = null,
-			obj = null;
-		if (needle && needle.id) {
-			needle = needle.id;
-		}
+		idregex: /[\\:&'".,=\- \/]/g,
 
-		if (!obj || !obj.length) {
-			try {
-				obj = $(needle);
-			} catch (ignore) {}
+		_internal: {
+			instance_counter: 0,
+			ccp_inst: false,
+			ccp_node: false,
+			ccp_mode: false,
+			clone_node: _node,
+			themes_loaded: [],
 		}
-		if (!obj || !obj.length) {
-			try {
-				obj = $('#' + needle.replace($.jstree.idregex, '\\$&'));
-			} catch (ignore) {}
-		}
-		if (obj && obj.length && (obj = obj.closest('.jstree')).length && (obj = obj.data('jstree'))) {
-			tmp = obj;
-		} else {
-			$('.jstree').each(function () {
-				var inst = $(this).data('jstree');
-				if (inst && inst._model.data[needle]) {
-					tmp = inst;
-					return false;
+	};
+
+}(jQuery);
++function($) {
+	'use strict';
+
+	// helpers
+	$.vakata = {};
+	// reverse
+	$.fn.vakata_reverse = [].reverse;
+	// collect attributes
+	$.vakata.attributes = function (node, with_values) {
+		node = $(node)[0];
+		var attr = with_values ? {} : [];
+		if (node && node.attributes) {
+			$.each(node.attributes, function (i, v) {
+				if ($.inArray(v.nodeName.toLowerCase(), ['style', 'contenteditable', 'hasfocus', 'tabindex']) !== -1) {
+					return;
+				}
+				if (v.nodeValue !== null && $.trim(v.nodeValue) !== '') {
+					if (with_values) {
+						attr[v.nodeName] = v.nodeValue;
+					} else {
+						attr.push(v.nodeName);
+					}
 				}
 			});
 		}
-		return tmp;
+		return attr;
 	};
-	/**
-	 * Create an instance, get an instance or invoke a command on a instance.
-	 *
-	 * If there is no instance associated with the current node a new one is created and `arg` is used to extend `$.jstree.defaults` for this new instance. There would be no return value (chaining is not broken).
-	 *
-	 * If there is an existing instance and `arg` is a string the command specified by `arg` is executed on the instance, with any additional arguments passed to the function. If the function returns a value it will be returned (chaining could break depending on function).
-	 *
-	 * If there is an existing instance and `arg` is not a string the instance itself is returned (similar to `$.jstree.reference`).
-	 *
-	 * In any other case - nothing is returned and chaining is not broken.
-	 *
-	 * __Examples__
-	 *
-	 *	$('#tree1').jstree(); // creates an instance
-	 *	$('#tree2').jstree({ plugins : [] }); // create an instance with some options
-	 *	$('#tree1').jstree('open_node', '#branch_1'); // call a method on an existing instance, passing additional arguments
-	 *	$('#tree2').jstree(); // get an existing instance (or create an instance)
-	 *	$('#tree2').jstree(true); // get an existing instance (will not create new instance)
-	 *	$('#branch_1').jstree().select_node('#branch_1'); // get an instance (using a nested element and call a method)
-	 *
-	 * @name $().jstree([arg])
-	 * @param {String|Object} arg
-	 * @return {Mixed}
-	 */
-	$.fn.jstree = function (arg) {
-		// check for string argument
-		var is_method = (typeof arg === 'string'),
-			args = Array.prototype.slice.call(arguments, 1),
-			result = null;
-		this.each(function () {
-			// get the instance (if there is one) and method (if it exists)
-			var instance = $.jstree.reference(this),
-				method = is_method && instance ? instance[arg] : null;
-			// if calling a method, and method is available - execute on the instance
-			result = is_method && method ?
-				method.apply(instance, args) :
-				null;
-			// if there is no instance and no method is being called - create one
-			if (!instance && !is_method && (arg === undefined || $.isPlainObject(arg))) {
-				$(this).data('jstree', new $.jstree.create(this, arg));
+	$.vakata.array_unique = function (array) {
+		var a = [],
+			i, j, l;
+		for (i = 0, l = array.length; i < l; i++) {
+			for (j = 0; j <= i; j++) {
+				if (array[i] === array[j]) {
+					break;
+				}
 			}
-			// if there is an instance and no method is called - return the instance
-			if ((instance && !is_method) || arg === true) {
-				result = instance || false;
+			if (j === i) {
+				a.push(array[i]);
 			}
-			// if there was a method call which returned a result - break and return the value
-			if (result !== null && result !== undefined) {
-				return false;
-			}
-		});
-		// if there was a method call with a valid return value - return that, otherwise continue the chain
-		return result !== null && result !== undefined ?
-			result : this;
+		}
+		return a;
 	};
-	/**
-	 * used to find elements containing an instance
-	 *
-	 * __Examples__
-	 *
-	 *	$('div:jstree').each(function () {
-	 *		$(this).jstree('destroy');
-	 *	});
-	 *
-	 * @name $(':jstree')
-	 * @return {jQuery}
-	 */
-	$.expr[':'].jstree = $.expr.createPseudo(function (search) {
-		return function (a) {
-			return $(a).hasClass('jstree') &&
-				$(a).data('jstree') !== undefined;
-		};
-	});
+	// remove item from array
+	$.vakata.array_remove = function (array, from, to) {
+		var rest = array.slice((to || from) + 1 || array.length);
+		array.length = from < 0 ? array.length + from : from;
+		array.push.apply(array, rest);
+		return array;
+	};
+	// remove item from array
+	$.vakata.array_remove_item = function (array, item) {
+		var tmp = $.inArray(item, array);
+		return tmp !== -1 ? $.vakata.array_remove(array, tmp) : array;
+	};
+	// browser sniffing
+	(function () {
+		var browser = {},
+			b_match = function (ua) {
+				ua = ua.toLowerCase();
+
+				var match = /(chrome)[ \/]([\w.]+)/.exec(ua) ||
+					/(webkit)[ \/]([\w.]+)/.exec(ua) ||
+					/(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
+					/(msie) ([\w.]+)/.exec(ua) ||
+					(ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua)) || [];
+				return {
+					browser: match[1] || "",
+					version: match[2] || "0"
+				};
+			},
+			matched = b_match(window.navigator.userAgent);
+		if (matched.browser) {
+			browser[matched.browser] = true;
+			browser.version = matched.version;
+		}
+		if (browser.chrome) {
+			browser.webkit = true;
+		} else if (browser.webkit) {
+			browser.safari = true;
+		}
+		$.vakata.browser = browser;
+	}());
+	if ($.vakata.browser.msie && $.vakata.browser.version < 8) {
+		$.jstree.defaults.core.animation = 0;
+	}
+}(jQuery);
++function($) {
+	'use strict';
 
 	/**
 	 * stores all defaults for the core
@@ -427,6 +330,179 @@
 		 */
 		expand_selected_onload: true
 	};
+}(jQuery);
++function($) {
+	'use strict';
+
+	/**
+	 * creates a jstree instance
+	 * @name $.jstree.create(el [, options])
+	 * @param {DOMElement|jQuery|String} el the element to create the instance on, can be jQuery extended or a selector
+	 * @param {Object} options options for this instance (extends `$.jstree.defaults`)
+	 * @return {jsTree} the new instance
+	 */
+	$.jstree.create = function (el, options) {
+		var tmp = new $.jstree.core(++$.jstree._internal.instance_counter),
+			opt = options;
+		options = $.extend(true, {}, $.jstree.defaults, options);
+		if (opt && opt.plugins) {
+			options.plugins = opt.plugins;
+		}
+		$.each(options.plugins, function (i, k) {
+			if (i !== 'core') {
+				tmp = tmp.plugin(k, options[k]);
+			}
+		});
+		tmp.init(el, options);
+		return tmp;
+	};
+	/**
+	 * the jstree class constructor, used only internally
+	 * @private
+	 * @name $.jstree.core(id)
+	 * @param {Number} id this instance's index
+	 */
+	$.jstree.core = function (id) {
+		this._id = id;
+		this._cnt = 0;
+		this._data = {
+			core: {
+				themes: {
+					name: false,
+					dots: false,
+					icons: false
+				},
+				selected: [],
+				last_error: {}
+			}
+		};
+	};
+	/**
+	 * get a reference to an existing instance
+	 *
+	 * __Examples__
+	 *
+	 *	// provided a container with an ID of "tree", and a nested node with an ID of "branch"
+	 *	// all of there will return the same instance
+	 *	$.jstree.reference('tree');
+	 *	$.jstree.reference('#tree');
+	 *	$.jstree.reference($('#tree'));
+	 *	$.jstree.reference(document.getElementByID('tree'));
+	 *	$.jstree.reference('branch');
+	 *	$.jstree.reference('#branch');
+	 *	$.jstree.reference($('#branch'));
+	 *	$.jstree.reference(document.getElementByID('branch'));
+	 *
+	 * @name $.jstree.reference(needle)
+	 * @param {DOMElement|jQuery|String} needle
+	 * @return {jsTree|null} the instance or `null` if not found
+	 */
+	$.jstree.reference = function (needle) {
+		var tmp = null,
+			obj = null;
+		if (needle && needle.id) {
+			needle = needle.id;
+		}
+
+		if (!obj || !obj.length) {
+			try {
+				obj = $(needle);
+			} catch (ignore) {}
+		}
+		if (!obj || !obj.length) {
+			try {
+				obj = $('#' + needle.replace($.jstree.idregex, '\\$&'));
+			} catch (ignore) {}
+		}
+		if (obj && obj.length && (obj = obj.closest('.jstree')).length && (obj = obj.data('jstree'))) {
+			tmp = obj;
+		} else {
+			$('.jstree').each(function () {
+				var inst = $(this).data('jstree');
+				if (inst && inst._model.data[needle]) {
+					tmp = inst;
+					return false;
+				}
+			});
+		}
+		return tmp;
+	};
+	/**
+	 * Create an instance, get an instance or invoke a command on a instance.
+	 *
+	 * If there is no instance associated with the current node a new one is created and `arg` is used to extend `$.jstree.defaults` for this new instance. There would be no return value (chaining is not broken).
+	 *
+	 * If there is an existing instance and `arg` is a string the command specified by `arg` is executed on the instance, with any additional arguments passed to the function. If the function returns a value it will be returned (chaining could break depending on function).
+	 *
+	 * If there is an existing instance and `arg` is not a string the instance itself is returned (similar to `$.jstree.reference`).
+	 *
+	 * In any other case - nothing is returned and chaining is not broken.
+	 *
+	 * __Examples__
+	 *
+	 *	$('#tree1').jstree(); // creates an instance
+	 *	$('#tree2').jstree({ plugins : [] }); // create an instance with some options
+	 *	$('#tree1').jstree('open_node', '#branch_1'); // call a method on an existing instance, passing additional arguments
+	 *	$('#tree2').jstree(); // get an existing instance (or create an instance)
+	 *	$('#tree2').jstree(true); // get an existing instance (will not create new instance)
+	 *	$('#branch_1').jstree().select_node('#branch_1'); // get an instance (using a nested element and call a method)
+	 *
+	 * @name $().jstree([arg])
+	 * @param {String|Object} arg
+	 * @return {Mixed}
+	 */
+	$.fn.jstree = function (arg) {
+		// check for string argument
+		var is_method = (typeof arg === 'string'),
+			args = Array.prototype.slice.call(arguments, 1),
+			result = null;
+		this.each(function () {
+			// get the instance (if there is one) and method (if it exists)
+			var instance = $.jstree.reference(this),
+				method = is_method && instance ? instance[arg] : null;
+			// if calling a method, and method is available - execute on the instance
+			result = is_method && method ?
+				method.apply(instance, args) :
+				null;
+			// if there is no instance and no method is being called - create one
+			if (!instance && !is_method && (arg === undefined || $.isPlainObject(arg))) {
+				$(this).data('jstree', new $.jstree.create(this, arg));
+			}
+			// if there is an instance and no method is called - return the instance
+			if ((instance && !is_method) || arg === true) {
+				result = instance || false;
+			}
+			// if there was a method call which returned a result - break and return the value
+			if (result !== null && result !== undefined) {
+				return false;
+			}
+		});
+		// if there was a method call with a valid return value - return that, otherwise continue the chain
+		return result !== null && result !== undefined ?
+			result : this;
+	};
+	/**
+	 * used to find elements containing an instance
+	 *
+	 * __Examples__
+	 *
+	 *	$('div:jstree').each(function () {
+	 *		$(this).jstree('destroy');
+	 *	});
+	 *
+	 * @name $(':jstree')
+	 * @return {jQuery}
+	 */
+	$.expr[':'].jstree = $.expr.createPseudo(function (search) {
+		return function (a) {
+			return $(a).hasClass('jstree') &&
+				$(a).data('jstree') !== undefined;
+		};
+	});
+}(jQuery);
++function($) {
+	'use strict';
+
 	$.jstree.core.prototype = {
 		/**
 		 * used to decorate an instance with a plugin. Used internally.
@@ -680,15 +756,15 @@
 						}
 					}
 				}, this))
-			// THEME RELATED
-			.on("init.jstree", $.proxy(function () {
-				var s = this.settings.core.themes;
-				this._data.core.themes.dots = s.dots;
-				this._data.core.themes.stripes = s.stripes;
-				this._data.core.themes.icons = s.icons;
-				this.set_theme(s.name || "default", s.url);
-				this.set_theme_variant(s.variant);
-			}, this))
+				// THEME RELATED
+				.on("init.jstree", $.proxy(function () {
+					var s = this.settings.core.themes;
+					this._data.core.themes.dots = s.dots;
+					this._data.core.themes.stripes = s.stripes;
+					this._data.core.themes.icons = s.icons;
+					this.set_theme(s.name || "default", s.url);
+					this.set_theme_variant(s.variant);
+				}, this))
 				.on("loading.jstree", $.proxy(function () {
 					this[this._data.core.themes.dots ? "show_dots" : "hide_dots"]();
 					this[this._data.core.themes.icons ? "show_icons" : "hide_icons"]();
@@ -1339,352 +1415,6 @@
 			return true;
 		},
 		/**
-		 * parses a node from a jQuery object and appends them to the in memory tree model. Used internally.
-		 * @private
-		 * @name _parse_model_from_html(d [, p, ps])
-		 * @param  {jQuery} d the jQuery object to parse
-		 * @param  {String} p the parent ID
-		 * @param  {Array} ps list of all parents
-		 * @return {String} the ID of the object added to the model
-		 */
-		_parse_model_from_html: function (d, p, ps) {
-			if (!ps) {
-				ps = [];
-			} else {
-				ps = [].concat(ps);
-			}
-			if (p) {
-				ps.unshift(p);
-			}
-			var c, e, m = this._model.data,
-				data = {
-					id: false,
-					text: false,
-					icon: true,
-					parent: p,
-					parents: ps,
-					children: [],
-					children_d: [],
-					data: null,
-					state: {},
-					li_attr: {
-						id: false
-					},
-					a_attr: {
-						href: '#'
-					},
-					original: false
-				}, i, tmp, tid;
-			for (i in this._model.default_state) {
-				if (this._model.default_state.hasOwnProperty(i)) {
-					data.state[i] = this._model.default_state[i];
-				}
-			}
-			tmp = $.vakata.attributes(d, true);
-			$.each(tmp, function (i, v) {
-				v = $.trim(v);
-				if (!v.length) {
-					return true;
-				}
-				data.li_attr[i] = v;
-				if (i === 'id') {
-					data.id = v.toString();
-				}
-			});
-			tmp = d.children('a').eq(0);
-			if (tmp.length) {
-				tmp = $.vakata.attributes(tmp, true);
-				$.each(tmp, function (i, v) {
-					v = $.trim(v);
-					if (v.length) {
-						data.a_attr[i] = v;
-					}
-				});
-			}
-			tmp = d.children("a:eq(0)").length ? d.children("a:eq(0)").clone() : d.clone();
-			tmp.children("ins, i, ul").remove();
-			tmp = tmp.html();
-			tmp = $('<div />').html(tmp);
-			data.text = tmp.html();
-			tmp = d.data();
-			data.data = tmp ? $.extend(true, {}, tmp) : null;
-			data.state.opened = d.hasClass('jstree-open');
-			data.state.selected = d.children('a').hasClass('jstree-clicked');
-			data.state.disabled = d.children('a').hasClass('jstree-disabled');
-			if (data.data && data.data.jstree) {
-				for (i in data.data.jstree) {
-					if (data.data.jstree.hasOwnProperty(i)) {
-						data.state[i] = data.data.jstree[i];
-					}
-				}
-			}
-			tmp = d.children("a").children(".jstree-themeicon");
-			if (tmp.length) {
-				data.icon = tmp.hasClass('jstree-themeicon-hidden') ? false : tmp.attr('rel');
-			}
-			if (data.state.icon) {
-				data.icon = data.state.icon;
-			}
-			tmp = d.children("ul").children("li");
-			do {
-				tid = 'j' + this._id + '_' + (++this._cnt);
-			} while (m[tid]);
-			data.id = data.li_attr.id ? data.li_attr.id.toString() : tid;
-			if (tmp.length) {
-				tmp.each($.proxy(function (i, v) {
-					c = this._parse_model_from_html($(v), data.id, ps);
-					e = this._model.data[c];
-					data.children.push(c);
-					if (e.children_d.length) {
-						data.children_d = data.children_d.concat(e.children_d);
-					}
-				}, this));
-				data.children_d = data.children_d.concat(data.children);
-			} else {
-				if (d.hasClass('jstree-closed')) {
-					data.state.loaded = false;
-				}
-			}
-			if (data.li_attr['class']) {
-				data.li_attr['class'] = data.li_attr['class'].replace('jstree-closed', '').replace('jstree-open', '');
-			}
-			if (data.a_attr['class']) {
-				data.a_attr['class'] = data.a_attr['class'].replace('jstree-clicked', '').replace('jstree-disabled', '');
-			}
-			m[data.id] = data;
-			if (data.state.selected) {
-				this._data.core.selected.push(data.id);
-			}
-			return data.id;
-		},
-		/**
-		 * parses a node from a JSON object (used when dealing with flat data, which has no nesting of children, but has id and parent properties) and appends it to the in memory tree model. Used internally.
-		 * @private
-		 * @name _parse_model_from_flat_json(d [, p, ps])
-		 * @param  {Object} d the JSON object to parse
-		 * @param  {String} p the parent ID
-		 * @param  {Array} ps list of all parents
-		 * @return {String} the ID of the object added to the model
-		 */
-		_parse_model_from_flat_json: function (d, p, ps) {
-			if (!ps) {
-				ps = [];
-			} else {
-				ps = ps.concat();
-			}
-			if (p) {
-				ps.unshift(p);
-			}
-			var tid = d.id.toString(),
-				m = this._model.data,
-				df = this._model.default_state,
-				i, j, c, e,
-				tmp = {
-					id: tid,
-					text: d.text || '',
-					icon: d.icon !== undefined ? d.icon : true,
-					parent: p,
-					parents: ps,
-					children: d.children || [],
-					children_d: d.children_d || [],
-					data: d.data,
-					state: {},
-					li_attr: {
-						id: false
-					},
-					a_attr: {
-						href: '#'
-					},
-					original: false
-				};
-			for (i in df) {
-				if (df.hasOwnProperty(i)) {
-					tmp.state[i] = df[i];
-				}
-			}
-			if (d && d.data && d.data.jstree && d.data.jstree.icon) {
-				tmp.icon = d.data.jstree.icon;
-			}
-			if (d && d.data) {
-				tmp.data = d.data;
-				if (d.data.jstree) {
-					for (i in d.data.jstree) {
-						if (d.data.jstree.hasOwnProperty(i)) {
-							tmp.state[i] = d.data.jstree[i];
-						}
-					}
-				}
-			}
-			if (d && typeof d.state === 'object') {
-				for (i in d.state) {
-					if (d.state.hasOwnProperty(i)) {
-						tmp.state[i] = d.state[i];
-					}
-				}
-			}
-			if (d && typeof d.li_attr === 'object') {
-				for (i in d.li_attr) {
-					if (d.li_attr.hasOwnProperty(i)) {
-						tmp.li_attr[i] = d.li_attr[i];
-					}
-				}
-			}
-			if (!tmp.li_attr.id) {
-				tmp.li_attr.id = tid;
-			}
-			if (d && typeof d.a_attr === 'object') {
-				for (i in d.a_attr) {
-					if (d.a_attr.hasOwnProperty(i)) {
-						tmp.a_attr[i] = d.a_attr[i];
-					}
-				}
-			}
-			if (d && d.children && d.children === true) {
-				tmp.state.loaded = false;
-				tmp.children = [];
-				tmp.children_d = [];
-			}
-			m[tmp.id] = tmp;
-			for (i = 0, j = tmp.children.length; i < j; i++) {
-				c = this._parse_model_from_flat_json(m[tmp.children[i]], tmp.id, ps);
-				e = m[c];
-				tmp.children_d.push(c);
-				if (e.children_d.length) {
-					tmp.children_d = tmp.children_d.concat(e.children_d);
-				}
-			}
-			delete d.data;
-			delete d.children;
-			m[tmp.id].original = d;
-			if (tmp.state.selected) {
-				this._data.core.selected.push(tmp.id);
-			}
-			return tmp.id;
-		},
-		/**
-		 * parses a node from a JSON object and appends it to the in memory tree model. Used internally.
-		 * @private
-		 * @name _parse_model_from_json(d [, p, ps])
-		 * @param  {Object} d the JSON object to parse
-		 * @param  {String} p the parent ID
-		 * @param  {Array} ps list of all parents
-		 * @return {String} the ID of the object added to the model
-		 */
-		_parse_model_from_json: function (d, p, ps) {
-			if (!ps) {
-				ps = [];
-			} else {
-				ps = ps.concat();
-			}
-			if (p) {
-				ps.unshift(p);
-			}
-			var tid = false,
-				i, j, c, e, m = this._model.data,
-				df = this._model.default_state,
-				tmp;
-			do {
-				tid = 'j' + this._id + '_' + (++this._cnt);
-			} while (m[tid]);
-
-			tmp = {
-				id: false,
-				text: typeof d === 'string' ? d : '',
-				icon: typeof d === 'object' && d.icon !== undefined ? d.icon : true,
-				parent: p,
-				parents: ps,
-				children: [],
-				children_d: [],
-				data: null,
-				state: {},
-				li_attr: {
-					id: false
-				},
-				a_attr: {
-					href: '#'
-				},
-				original: false
-			};
-			for (i in df) {
-				if (df.hasOwnProperty(i)) {
-					tmp.state[i] = df[i];
-				}
-			}
-			if (d && d.id) {
-				tmp.id = d.id.toString();
-			}
-			if (d && d.text) {
-				tmp.text = d.text;
-			}
-			if (d && d.data && d.data.jstree && d.data.jstree.icon) {
-				tmp.icon = d.data.jstree.icon;
-			}
-			if (d && d.data) {
-				tmp.data = d.data;
-				if (d.data.jstree) {
-					for (i in d.data.jstree) {
-						if (d.data.jstree.hasOwnProperty(i)) {
-							tmp.state[i] = d.data.jstree[i];
-						}
-					}
-				}
-			}
-			if (d && typeof d.state === 'object') {
-				for (i in d.state) {
-					if (d.state.hasOwnProperty(i)) {
-						tmp.state[i] = d.state[i];
-					}
-				}
-			}
-			if (d && typeof d.li_attr === 'object') {
-				for (i in d.li_attr) {
-					if (d.li_attr.hasOwnProperty(i)) {
-						tmp.li_attr[i] = d.li_attr[i];
-					}
-				}
-			}
-			if (tmp.li_attr.id && !tmp.id) {
-				tmp.id = tmp.li_attr.id.toString();
-			}
-			if (!tmp.id) {
-				tmp.id = tid;
-			}
-			if (!tmp.li_attr.id) {
-				tmp.li_attr.id = tmp.id;
-			}
-			if (d && typeof d.a_attr === 'object') {
-				for (i in d.a_attr) {
-					if (d.a_attr.hasOwnProperty(i)) {
-						tmp.a_attr[i] = d.a_attr[i];
-					}
-				}
-			}
-			if (d && d.children && d.children.length) {
-				for (i = 0, j = d.children.length; i < j; i++) {
-					c = this._parse_model_from_json(d.children[i], tmp.id, ps);
-					e = m[c];
-					tmp.children.push(c);
-					if (e.children_d.length) {
-						tmp.children_d = tmp.children_d.concat(e.children_d);
-					}
-				}
-				tmp.children_d = tmp.children_d.concat(tmp.children);
-			}
-			if (d && d.children && d.children === true) {
-				tmp.state.loaded = false;
-				tmp.children = [];
-				tmp.children_d = [];
-			}
-			delete d.data;
-			delete d.children;
-			tmp.original = d;
-			m[tmp.id] = tmp;
-			if (tmp.state.selected) {
-				this._data.core.selected.push(tmp.id);
-			}
-			return tmp.id;
-		},
-		/**
 		 * redraws all nodes that need to be redrawn. Used internally.
 		 * @private
 		 * @name _redraw()
@@ -1793,7 +1523,7 @@
 				//node = d.createElement('LI');
 				//node = node[0];
 			}
-			node = _node.cloneNode(true);
+			node = $.jstree._internal.clone_node.cloneNode(true);
 			// node is DOM, deep is boolean
 
 			c = 'jstree-node ';
@@ -2399,259 +2129,6 @@
 			this.trigger('dehover_node', {
 				'node': this.get_node(obj)
 			});
-		},
-		/**
-		 * select a node
-		 * @name select_node(obj [, supress_event, prevent_open])
-		 * @param {mixed} obj an array can be used to select multiple nodes
-		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
-		 * @param {Boolean} prevent_open if set to `true` parents of the selected node won't be opened
-		 * @trigger select_node.jstree, changed.jstree
-		 */
-		select_node: function (obj, supress_event, prevent_open, e) {
-			var dom, t1, t2, th;
-			if ($.isArray(obj)) {
-				obj = obj.slice();
-				for (t1 = 0, t2 = obj.length; t1 < t2; t1++) {
-					this.select_node(obj[t1], supress_event, prevent_open, e);
-				}
-				return true;
-			}
-			obj = this.get_node(obj);
-			if (!obj || obj.id === '#') {
-				return false;
-			}
-			dom = this.get_node(obj, true);
-			if (!obj.state.selected) {
-				obj.state.selected = true;
-				this._data.core.selected.push(obj.id);
-				if (!prevent_open) {
-					dom = this._open_to(obj);
-				}
-				if (dom && dom.length) {
-					dom.children('.jstree-anchor').addClass('jstree-clicked');
-				}
-				/**
-				 * triggered when an node is selected
-				 * @event
-				 * @name select_node.jstree
-				 * @param {Object} node
-				 * @param {Array} selected the current selection
-				 * @param {Object} event the event (if any) that triggered this select_node
-				 */
-				this.trigger('select_node', {
-					'node': obj,
-					'selected': this._data.core.selected,
-					'event': e
-				});
-				if (!supress_event) {
-					/**
-					 * triggered when selection changes
-					 * @event
-					 * @name changed.jstree
-					 * @param {Object} node
-					 * @param {Object} action the action that caused the selection to change
-					 * @param {Array} selected the current selection
-					 * @param {Object} event the event (if any) that triggered this changed event
-					 */
-					this.trigger('changed', {
-						'action': 'select_node',
-						'node': obj,
-						'selected': this._data.core.selected,
-						'event': e
-					});
-				}
-			}
-		},
-		/**
-		 * deselect a node
-		 * @name deselect_node(obj [, supress_event])
-		 * @param {mixed} obj an array can be used to deselect multiple nodes
-		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
-		 * @trigger deselect_node.jstree, changed.jstree
-		 */
-		deselect_node: function (obj, supress_event, e) {
-			var t1, t2, dom;
-			if ($.isArray(obj)) {
-				obj = obj.slice();
-				for (t1 = 0, t2 = obj.length; t1 < t2; t1++) {
-					this.deselect_node(obj[t1], supress_event, e);
-				}
-				return true;
-			}
-			obj = this.get_node(obj);
-			if (!obj || obj.id === '#') {
-				return false;
-			}
-			dom = this.get_node(obj, true);
-			if (obj.state.selected) {
-				obj.state.selected = false;
-				this._data.core.selected = $.vakata.array_remove_item(this._data.core.selected, obj.id);
-				if (dom.length) {
-					dom.children('.jstree-anchor').removeClass('jstree-clicked');
-				}
-				/**
-				 * triggered when an node is deselected
-				 * @event
-				 * @name deselect_node.jstree
-				 * @param {Object} node
-				 * @param {Array} selected the current selection
-				 * @param {Object} event the event (if any) that triggered this deselect_node
-				 */
-				this.trigger('deselect_node', {
-					'node': obj,
-					'selected': this._data.core.selected,
-					'event': e
-				});
-				if (!supress_event) {
-					this.trigger('changed', {
-						'action': 'deselect_node',
-						'node': obj,
-						'selected': this._data.core.selected,
-						'event': e
-					});
-				}
-			}
-		},
-		/**
-		 * select all nodes in the tree
-		 * @name select_all([supress_event])
-		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
-		 * @trigger select_all.jstree, changed.jstree
-		 */
-		select_all: function (supress_event) {
-			var tmp = this._data.core.selected.concat([]),
-				i, j;
-			this._data.core.selected = this._model.data['#'].children_d.concat();
-			for (i = 0, j = this._data.core.selected.length; i < j; i++) {
-				if (this._model.data[this._data.core.selected[i]]) {
-					this._model.data[this._data.core.selected[i]].state.selected = true;
-				}
-			}
-			this.redraw(true);
-			/**
-			 * triggered when all nodes are selected
-			 * @event
-			 * @name select_all.jstree
-			 * @param {Array} selected the current selection
-			 */
-			this.trigger('select_all', {
-				'selected': this._data.core.selected
-			});
-			if (!supress_event) {
-				this.trigger('changed', {
-					'action': 'select_all',
-					'selected': this._data.core.selected,
-					'old_selection': tmp
-				});
-			}
-		},
-		/**
-		 * deselect all selected nodes
-		 * @name deselect_all([supress_event])
-		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
-		 * @trigger deselect_all.jstree, changed.jstree
-		 */
-		deselect_all: function (supress_event) {
-			var tmp = this._data.core.selected.concat([]),
-				i, j;
-			for (i = 0, j = this._data.core.selected.length; i < j; i++) {
-				if (this._model.data[this._data.core.selected[i]]) {
-					this._model.data[this._data.core.selected[i]].state.selected = false;
-				}
-			}
-			this._data.core.selected = [];
-			this.element.find('.jstree-clicked').removeClass('jstree-clicked');
-			/**
-			 * triggered when all nodes are deselected
-			 * @event
-			 * @name deselect_all.jstree
-			 * @param {Object} node the previous selection
-			 * @param {Array} selected the current selection
-			 */
-			this.trigger('deselect_all', {
-				'selected': this._data.core.selected,
-				'node': tmp
-			});
-			if (!supress_event) {
-				this.trigger('changed', {
-					'action': 'deselect_all',
-					'selected': this._data.core.selected,
-					'old_selection': tmp
-				});
-			}
-		},
-		/**
-		 * checks if a node is selected
-		 * @name is_selected(obj)
-		 * @param  {mixed}  obj
-		 * @return {Boolean}
-		 */
-		is_selected: function (obj) {
-			obj = this.get_node(obj);
-			if (!obj || obj.id === '#') {
-				return false;
-			}
-			return obj.state.selected;
-		},
-		/**
-		 * get an array of all selected nodes
-		 * @name get_selected([full])
-		 * @param  {mixed}  full if set to `true` the returned array will consist of the full node objects, otherwise - only IDs will be returned
-		 * @return {Array}
-		 */
-		get_selected: function (full) {
-			return full ? $.map(this._data.core.selected, $.proxy(function (i) {
-				return this.get_node(i);
-			}, this)) : this._data.core.selected;
-		},
-		/**
-		 * get an array of all top level selected nodes (ignoring children of selected nodes)
-		 * @name get_top_selected([full])
-		 * @param  {mixed}  full if set to `true` the returned array will consist of the full node objects, otherwise - only IDs will be returned
-		 * @return {Array}
-		 */
-		get_top_selected: function (full) {
-			var tmp = this.get_selected(true),
-				obj = {}, i, j, k, l;
-			for (i = 0, j = tmp.length; i < j; i++) {
-				obj[tmp[i].id] = tmp[i];
-			}
-			for (i = 0, j = tmp.length; i < j; i++) {
-				for (k = 0, l = tmp[i].children_d.length; k < l; k++) {
-					if (obj[tmp[i].children_d[k]]) {
-						delete obj[tmp[i].children_d[k]];
-					}
-				}
-			}
-			tmp = [];
-			for (i in obj) {
-				if (obj.hasOwnProperty(i)) {
-					tmp.push(i);
-				}
-			}
-			return full ? $.map(tmp, $.proxy(function (i) {
-				return this.get_node(i);
-			}, this)) : tmp;
-		},
-		/**
-		 * get an array of all bottom level selected nodes (ignoring selected parents)
-		 * @name get_top_selected([full])
-		 * @param  {mixed}  full if set to `true` the returned array will consist of the full node objects, otherwise - only IDs will be returned
-		 * @return {Array}
-		 */
-		get_bottom_selected: function (full) {
-			var tmp = this.get_selected(true),
-				obj = [],
-				i, j;
-			for (i = 0, j = tmp.length; i < j; i++) {
-				if (!tmp[i].children.length) {
-					obj.push(tmp[i].id);
-				}
-			}
-			return full ? $.map(obj, $.proxy(function (i) {
-				return this.get_node(i);
-			}, this)) : obj;
 		},
 		/**
 		 * gets the current state of the tree so that it can be restored later with `set_state(state)`. Used internally.
@@ -3634,137 +3111,7 @@
 			});
 			return tmp.id;
 		},
-		/**
-		 * cut a node (a later call to `paste(obj)` would move the node)
-		 * @name cut(obj)
-		 * @param  {mixed} obj multiple objects can be passed using an array
-		 * @trigger cut.jstree
-		 */
-		cut: function (obj) {
-			if (!obj) {
-				obj = this._data.core.selected.concat();
-			}
-			if (!$.isArray(obj)) {
-				obj = [obj];
-			}
-			if (!obj.length) {
-				return false;
-			}
-			var tmp = [],
-				o, t1, t2;
-			for (t1 = 0, t2 = obj.length; t1 < t2; t1++) {
-				o = this.get_node(obj[t1]);
-				if (o && o.id && o.id !== '#') {
-					tmp.push(o);
-				}
-			}
-			if (!tmp.length) {
-				return false;
-			}
-			ccp_node = tmp;
-			ccp_inst = this;
-			ccp_mode = 'move_node';
-			/**
-			 * triggered when nodes are added to the buffer for moving
-			 * @event
-			 * @name cut.jstree
-			 * @param {Array} node
-			 */
-			this.trigger('cut', {
-				"node": obj
-			});
-		},
-		/**
-		 * copy a node (a later call to `paste(obj)` would copy the node)
-		 * @name copy(obj)
-		 * @param  {mixed} obj multiple objects can be passed using an array
-		 * @trigger copy.jstre
-		 */
-		copy: function (obj) {
-			if (!obj) {
-				obj = this._data.core.selected.concat();
-			}
-			if (!$.isArray(obj)) {
-				obj = [obj];
-			}
-			if (!obj.length) {
-				return false;
-			}
-			var tmp = [],
-				o, t1, t2;
-			for (t1 = 0, t2 = obj.length; t1 < t2; t1++) {
-				o = this.get_node(obj[t1]);
-				if (o && o.id && o.id !== '#') {
-					tmp.push(o);
-				}
-			}
-			if (!tmp.length) {
-				return false;
-			}
-			ccp_node = tmp;
-			ccp_inst = this;
-			ccp_mode = 'copy_node';
-			/**
-			 * triggered when nodes are added to the buffer for copying
-			 * @event
-			 * @name copy.jstree
-			 * @param {Array} node
-			 */
-			this.trigger('copy', {
-				"node": obj
-			});
-		},
-		/**
-		 * get the current buffer (any nodes that are waiting for a paste operation)
-		 * @name get_buffer()
-		 * @return {Object} an object consisting of `mode` ("copy_node" or "move_node"), `node` (an array of objects) and `inst` (the instance)
-		 */
-		get_buffer: function () {
-			return {
-				'mode': ccp_mode,
-				'node': ccp_node,
-				'inst': ccp_inst
-			};
-		},
-		/**
-		 * check if there is something in the buffer to paste
-		 * @name can_paste()
-		 * @return {Boolean}
-		 */
-		can_paste: function () {
-			return ccp_mode !== false && ccp_node !== false; // && ccp_inst._model.data[ccp_node];
-		},
-		/**
-		 * copy or move the previously cut or copied nodes to a new parent
-		 * @name paste(obj [, pos])
-		 * @param  {mixed} obj the new parent
-		 * @param  {mixed} pos the position to insert at (besides integer, "first" and "last" are supported), defaults to integer `0`
-		 * @trigger paste.jstree
-		 */
-		paste: function (obj, pos) {
-			obj = this.get_node(obj);
-			if (!obj || !ccp_mode || !ccp_mode.match(/^(copy_node|move_node)$/) || !ccp_node) {
-				return false;
-			}
-			if (this[ccp_mode](ccp_node, obj, pos)) {
-				/**
-				 * triggered when paste is invoked
-				 * @event
-				 * @name paste.jstree
-				 * @param {String} parent the ID of the receiving node
-				 * @param {Array} node the nodes in the buffer
-				 * @param {String} mode the performed operation - "copy_node" or "move_node"
-				 */
-				this.trigger('paste', {
-					"parent": obj.id,
-					"node": ccp_node,
-					"mode": ccp_mode
-				});
-			}
-			ccp_node = false;
-			ccp_mode = false;
-			ccp_inst = false;
-		},
+
 		/**
 		 * put a node in edit mode (input field to rename the node)
 		 * @name edit(obj [, default_text])
@@ -3866,8 +3213,760 @@
 			h1.css(fn);
 			h2.css(fn).width(Math.min(h1.text("pW" + h2[0].value).width(), w))[0].select();
 		},
+	};
+}(jQuery);
++function($) {
+	'use strict';
 
+	$.extend($.jstree.core.prototype, {
+		/**
+		 * cut a node (a later call to `paste(obj)` would move the node)
+		 * @name cut(obj)
+		 * @param  {mixed} obj multiple objects can be passed using an array
+		 * @trigger cut.jstree
+		 */
+		cut: function (obj) {
+			if (!obj) {
+				obj = this._data.core.selected.concat();
+			}
+			if (!$.isArray(obj)) {
+				obj = [obj];
+			}
+			if (!obj.length) {
+				return false;
+			}
+			var tmp = [],
+				o, t1, t2;
+			for (t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+				o = this.get_node(obj[t1]);
+				if (o && o.id && o.id !== '#') {
+					tmp.push(o);
+				}
+			}
+			if (!tmp.length) {
+				return false;
+			}
+			$.jstree._internal.ccp_node = tmp;
+			$.jstree._internal.ccp_inst = this;
+			$.jstree._internal.ccp_mode = 'move_node';
+			/**
+			 * triggered when nodes are added to the buffer for moving
+			 * @event
+			 * @name cut.jstree
+			 * @param {Array} node
+			 */
+			this.trigger('cut', {
+				"node": obj
+			});
+		},
+		/**
+		 * copy a node (a later call to `paste(obj)` would copy the node)
+		 * @name copy(obj)
+		 * @param  {mixed} obj multiple objects can be passed using an array
+		 * @trigger copy.jstre
+		 */
+		copy: function (obj) {
+			if (!obj) {
+				obj = this._data.core.selected.concat();
+			}
+			if (!$.isArray(obj)) {
+				obj = [obj];
+			}
+			if (!obj.length) {
+				return false;
+			}
+			var tmp = [],
+				o, t1, t2;
+			for (t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+				o = this.get_node(obj[t1]);
+				if (o && o.id && o.id !== '#') {
+					tmp.push(o);
+				}
+			}
+			if (!tmp.length) {
+				return false;
+			}
+			$.jstree._internal.ccp_node = tmp;
+			$.jstree._internal.ccp_inst = this;
+			$.jstree._internal.ccp_mode = 'copy_node';
+			/**
+			 * triggered when nodes are added to the buffer for copying
+			 * @event
+			 * @name copy.jstree
+			 * @param {Array} node
+			 */
+			this.trigger('copy', {
+				"node": obj
+			});
+		},
+		/**
+		 * get the current buffer (any nodes that are waiting for a paste operation)
+		 * @name get_buffer()
+		 * @return {Object} an object consisting of `mode` ("copy_node" or "move_node"), `node` (an array of objects) and `inst` (the instance)
+		 */
+		get_buffer: function () {
+			return {
+				'mode': $.jstree._internal.ccp_mode,
+				'node': $.jstree._internal.ccp_node,
+				'inst': $.jstree._internal.ccp_inst
+			};
+		},
+		/**
+		 * check if there is something in the buffer to paste
+		 * @name can_paste()
+		 * @return {Boolean}
+		 */
+		can_paste: function () {
+			return $.jstree._internal.ccp_mode !== false && $.jstree._internal.ccp_node !== false; // && $.jstree._internal.ccp_inst._model.data[$.jstree._internal.ccp_node];
+		},
+		/**
+		 * copy or move the previously cut or copied nodes to a new parent
+		 * @name paste(obj [, pos])
+		 * @param  {mixed} obj the new parent
+		 * @param  {mixed} pos the position to insert at (besides integer, "first" and "last" are supported), defaults to integer `0`
+		 * @trigger paste.jstree
+		 */
+		paste: function (obj, pos) {
+			obj = this.get_node(obj);
+			if (!obj || !$.jstree._internal.ccp_mode || !$.jstree._internal.ccp_mode.match(/^(copy_node|move_node)$/) || !$.jstree._internal.ccp_node) {
+				return false;
+			}
+			if (this[$.jstree._internal.ccp_mode]($.jstree._internal.ccp_node, obj, pos)) {
+				/**
+				 * triggered when paste is invoked
+				 * @event
+				 * @name paste.jstree
+				 * @param {String} parent the ID of the receiving node
+				 * @param {Array} node the nodes in the buffer
+				 * @param {String} mode the performed operation - "copy_node" or "move_node"
+				 */
+				this.trigger('paste', {
+					"parent": obj.id,
+					"node": $.jstree._internal.ccp_node,
+					"mode": $.jstree._internal.ccp_mode
+				});
+			}
+			$.jstree._internal.ccp_node = false;
+			$.jstree._internal.ccp_mode = false;
+			$.jstree._internal.ccp_inst = false;
+		},
+	});
+}(jQuery);
++function($) {
+	'use strict';
 
+	$.extend($.jstree.core.prototype, {
+		/**
+		 * parses a node from a jQuery object and appends them to the in memory tree model. Used internally.
+		 * @private
+		 * @name _parse_model_from_html(d [, p, ps])
+		 * @param  {jQuery} d the jQuery object to parse
+		 * @param  {String} p the parent ID
+		 * @param  {Array} ps list of all parents
+		 * @return {String} the ID of the object added to the model
+		 */
+		_parse_model_from_html: function (d, p, ps) {
+			if (!ps) {
+				ps = [];
+			} else {
+				ps = [].concat(ps);
+			}
+			if (p) {
+				ps.unshift(p);
+			}
+			var c, e, m = this._model.data,
+				data = {
+					id: false,
+					text: false,
+					icon: true,
+					parent: p,
+					parents: ps,
+					children: [],
+					children_d: [],
+					data: null,
+					state: {},
+					li_attr: {
+						id: false
+					},
+					a_attr: {
+						href: '#'
+					},
+					original: false
+				}, i, tmp, tid;
+			for (i in this._model.default_state) {
+				if (this._model.default_state.hasOwnProperty(i)) {
+					data.state[i] = this._model.default_state[i];
+				}
+			}
+			tmp = $.vakata.attributes(d, true);
+			$.each(tmp, function (i, v) {
+				v = $.trim(v);
+				if (!v.length) {
+					return true;
+				}
+				data.li_attr[i] = v;
+				if (i === 'id') {
+					data.id = v.toString();
+				}
+			});
+			tmp = d.children('a').eq(0);
+			if (tmp.length) {
+				tmp = $.vakata.attributes(tmp, true);
+				$.each(tmp, function (i, v) {
+					v = $.trim(v);
+					if (v.length) {
+						data.a_attr[i] = v;
+					}
+				});
+			}
+			tmp = d.children("a:eq(0)").length ? d.children("a:eq(0)").clone() : d.clone();
+			tmp.children("ins, i, ul").remove();
+			tmp = tmp.html();
+			tmp = $('<div />').html(tmp);
+			data.text = tmp.html();
+			tmp = d.data();
+			data.data = tmp ? $.extend(true, {}, tmp) : null;
+			data.state.opened = d.hasClass('jstree-open');
+			data.state.selected = d.children('a').hasClass('jstree-clicked');
+			data.state.disabled = d.children('a').hasClass('jstree-disabled');
+			if (data.data && data.data.jstree) {
+				for (i in data.data.jstree) {
+					if (data.data.jstree.hasOwnProperty(i)) {
+						data.state[i] = data.data.jstree[i];
+					}
+				}
+			}
+			tmp = d.children("a").children(".jstree-themeicon");
+			if (tmp.length) {
+				data.icon = tmp.hasClass('jstree-themeicon-hidden') ? false : tmp.attr('rel');
+			}
+			if (data.state.icon) {
+				data.icon = data.state.icon;
+			}
+			tmp = d.children("ul").children("li");
+			do {
+				tid = 'j' + this._id + '_' + (++this._cnt);
+			} while (m[tid]);
+			data.id = data.li_attr.id ? data.li_attr.id.toString() : tid;
+			if (tmp.length) {
+				tmp.each($.proxy(function (i, v) {
+					c = this._parse_model_from_html($(v), data.id, ps);
+					e = this._model.data[c];
+					data.children.push(c);
+					if (e.children_d.length) {
+						data.children_d = data.children_d.concat(e.children_d);
+					}
+				}, this));
+				data.children_d = data.children_d.concat(data.children);
+			} else {
+				if (d.hasClass('jstree-closed')) {
+					data.state.loaded = false;
+				}
+			}
+			if (data.li_attr['class']) {
+				data.li_attr['class'] = data.li_attr['class'].replace('jstree-closed', '').replace('jstree-open', '');
+			}
+			if (data.a_attr['class']) {
+				data.a_attr['class'] = data.a_attr['class'].replace('jstree-clicked', '').replace('jstree-disabled', '');
+			}
+			m[data.id] = data;
+			if (data.state.selected) {
+				this._data.core.selected.push(data.id);
+			}
+			return data.id;
+		},
+		/**
+		 * parses a node from a JSON object (used when dealing with flat data, which has no nesting of children, but has id and parent properties) and appends it to the in memory tree model. Used internally.
+		 * @private
+		 * @name _parse_model_from_flat_json(d [, p, ps])
+		 * @param  {Object} d the JSON object to parse
+		 * @param  {String} p the parent ID
+		 * @param  {Array} ps list of all parents
+		 * @return {String} the ID of the object added to the model
+		 */
+		_parse_model_from_flat_json: function (d, p, ps) {
+			if (!ps) {
+				ps = [];
+			} else {
+				ps = ps.concat();
+			}
+			if (p) {
+				ps.unshift(p);
+			}
+			var tid = d.id.toString(),
+				m = this._model.data,
+				df = this._model.default_state,
+				i, j, c, e,
+				tmp = {
+					id: tid,
+					text: d.text || '',
+					icon: d.icon !== undefined ? d.icon : true,
+					parent: p,
+					parents: ps,
+					children: d.children || [],
+					children_d: d.children_d || [],
+					data: d.data,
+					state: {},
+					li_attr: {
+						id: false
+					},
+					a_attr: {
+						href: '#'
+					},
+					original: false
+				};
+			for (i in df) {
+				if (df.hasOwnProperty(i)) {
+					tmp.state[i] = df[i];
+				}
+			}
+			if (d && d.data && d.data.jstree && d.data.jstree.icon) {
+				tmp.icon = d.data.jstree.icon;
+			}
+			if (d && d.data) {
+				tmp.data = d.data;
+				if (d.data.jstree) {
+					for (i in d.data.jstree) {
+						if (d.data.jstree.hasOwnProperty(i)) {
+							tmp.state[i] = d.data.jstree[i];
+						}
+					}
+				}
+			}
+			if (d && typeof d.state === 'object') {
+				for (i in d.state) {
+					if (d.state.hasOwnProperty(i)) {
+						tmp.state[i] = d.state[i];
+					}
+				}
+			}
+			if (d && typeof d.li_attr === 'object') {
+				for (i in d.li_attr) {
+					if (d.li_attr.hasOwnProperty(i)) {
+						tmp.li_attr[i] = d.li_attr[i];
+					}
+				}
+			}
+			if (!tmp.li_attr.id) {
+				tmp.li_attr.id = tid;
+			}
+			if (d && typeof d.a_attr === 'object') {
+				for (i in d.a_attr) {
+					if (d.a_attr.hasOwnProperty(i)) {
+						tmp.a_attr[i] = d.a_attr[i];
+					}
+				}
+			}
+			if (d && d.children && d.children === true) {
+				tmp.state.loaded = false;
+				tmp.children = [];
+				tmp.children_d = [];
+			}
+			m[tmp.id] = tmp;
+			for (i = 0, j = tmp.children.length; i < j; i++) {
+				c = this._parse_model_from_flat_json(m[tmp.children[i]], tmp.id, ps);
+				e = m[c];
+				tmp.children_d.push(c);
+				if (e.children_d.length) {
+					tmp.children_d = tmp.children_d.concat(e.children_d);
+				}
+			}
+			delete d.data;
+			delete d.children;
+			m[tmp.id].original = d;
+			if (tmp.state.selected) {
+				this._data.core.selected.push(tmp.id);
+			}
+			return tmp.id;
+		},
+		/**
+		 * parses a node from a JSON object and appends it to the in memory tree model. Used internally.
+		 * @private
+		 * @name _parse_model_from_json(d [, p, ps])
+		 * @param  {Object} d the JSON object to parse
+		 * @param  {String} p the parent ID
+		 * @param  {Array} ps list of all parents
+		 * @return {String} the ID of the object added to the model
+		 */
+		_parse_model_from_json: function (d, p, ps) {
+			if (!ps) {
+				ps = [];
+			} else {
+				ps = ps.concat();
+			}
+			if (p) {
+				ps.unshift(p);
+			}
+			var tid = false,
+				i, j, c, e, m = this._model.data,
+				df = this._model.default_state,
+				tmp;
+			do {
+				tid = 'j' + this._id + '_' + (++this._cnt);
+			} while (m[tid]);
+
+			tmp = {
+				id: false,
+				text: typeof d === 'string' ? d : '',
+				icon: typeof d === 'object' && d.icon !== undefined ? d.icon : true,
+				parent: p,
+				parents: ps,
+				children: [],
+				children_d: [],
+				data: null,
+				state: {},
+				li_attr: {
+					id: false
+				},
+				a_attr: {
+					href: '#'
+				},
+				original: false
+			};
+			for (i in df) {
+				if (df.hasOwnProperty(i)) {
+					tmp.state[i] = df[i];
+				}
+			}
+			if (d && d.id) {
+				tmp.id = d.id.toString();
+			}
+			if (d && d.text) {
+				tmp.text = d.text;
+			}
+			if (d && d.data && d.data.jstree && d.data.jstree.icon) {
+				tmp.icon = d.data.jstree.icon;
+			}
+			if (d && d.data) {
+				tmp.data = d.data;
+				if (d.data.jstree) {
+					for (i in d.data.jstree) {
+						if (d.data.jstree.hasOwnProperty(i)) {
+							tmp.state[i] = d.data.jstree[i];
+						}
+					}
+				}
+			}
+			if (d && typeof d.state === 'object') {
+				for (i in d.state) {
+					if (d.state.hasOwnProperty(i)) {
+						tmp.state[i] = d.state[i];
+					}
+				}
+			}
+			if (d && typeof d.li_attr === 'object') {
+				for (i in d.li_attr) {
+					if (d.li_attr.hasOwnProperty(i)) {
+						tmp.li_attr[i] = d.li_attr[i];
+					}
+				}
+			}
+			if (tmp.li_attr.id && !tmp.id) {
+				tmp.id = tmp.li_attr.id.toString();
+			}
+			if (!tmp.id) {
+				tmp.id = tid;
+			}
+			if (!tmp.li_attr.id) {
+				tmp.li_attr.id = tmp.id;
+			}
+			if (d && typeof d.a_attr === 'object') {
+				for (i in d.a_attr) {
+					if (d.a_attr.hasOwnProperty(i)) {
+						tmp.a_attr[i] = d.a_attr[i];
+					}
+				}
+			}
+			if (d && d.children && d.children.length) {
+				for (i = 0, j = d.children.length; i < j; i++) {
+					c = this._parse_model_from_json(d.children[i], tmp.id, ps);
+					e = m[c];
+					tmp.children.push(c);
+					if (e.children_d.length) {
+						tmp.children_d = tmp.children_d.concat(e.children_d);
+					}
+				}
+				tmp.children_d = tmp.children_d.concat(tmp.children);
+			}
+			if (d && d.children && d.children === true) {
+				tmp.state.loaded = false;
+				tmp.children = [];
+				tmp.children_d = [];
+			}
+			delete d.data;
+			delete d.children;
+			tmp.original = d;
+			m[tmp.id] = tmp;
+			if (tmp.state.selected) {
+				this._data.core.selected.push(tmp.id);
+			}
+			return tmp.id;
+		},
+	});
+}(jQuery);
++function($) {
+	'use strict';
+
+	$.extend($.jstree.core.prototype, {
+		/**
+		 * select a node
+		 * @name select_node(obj [, supress_event, prevent_open])
+		 * @param {mixed} obj an array can be used to select multiple nodes
+		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
+		 * @param {Boolean} prevent_open if set to `true` parents of the selected node won't be opened
+		 * @trigger select_node.jstree, changed.jstree
+		 */
+		select_node: function (obj, supress_event, prevent_open, e) {
+			var dom, t1, t2, th;
+			if ($.isArray(obj)) {
+				obj = obj.slice();
+				for (t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.select_node(obj[t1], supress_event, prevent_open, e);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if (!obj || obj.id === '#') {
+				return false;
+			}
+			dom = this.get_node(obj, true);
+			if (!obj.state.selected) {
+				obj.state.selected = true;
+				this._data.core.selected.push(obj.id);
+				if (!prevent_open) {
+					dom = this._open_to(obj);
+				}
+				if (dom && dom.length) {
+					dom.children('.jstree-anchor').addClass('jstree-clicked');
+				}
+				/**
+				 * triggered when an node is selected
+				 * @event
+				 * @name select_node.jstree
+				 * @param {Object} node
+				 * @param {Array} selected the current selection
+				 * @param {Object} event the event (if any) that triggered this select_node
+				 */
+				this.trigger('select_node', {
+					'node': obj,
+					'selected': this._data.core.selected,
+					'event': e
+				});
+				if (!supress_event) {
+					/**
+					 * triggered when selection changes
+					 * @event
+					 * @name changed.jstree
+					 * @param {Object} node
+					 * @param {Object} action the action that caused the selection to change
+					 * @param {Array} selected the current selection
+					 * @param {Object} event the event (if any) that triggered this changed event
+					 */
+					this.trigger('changed', {
+						'action': 'select_node',
+						'node': obj,
+						'selected': this._data.core.selected,
+						'event': e
+					});
+				}
+			}
+		},
+		/**
+		 * deselect a node
+		 * @name deselect_node(obj [, supress_event])
+		 * @param {mixed} obj an array can be used to deselect multiple nodes
+		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
+		 * @trigger deselect_node.jstree, changed.jstree
+		 */
+		deselect_node: function (obj, supress_event, e) {
+			var t1, t2, dom;
+			if ($.isArray(obj)) {
+				obj = obj.slice();
+				for (t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.deselect_node(obj[t1], supress_event, e);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if (!obj || obj.id === '#') {
+				return false;
+			}
+			dom = this.get_node(obj, true);
+			if (obj.state.selected) {
+				obj.state.selected = false;
+				this._data.core.selected = $.vakata.array_remove_item(this._data.core.selected, obj.id);
+				if (dom.length) {
+					dom.children('.jstree-anchor').removeClass('jstree-clicked');
+				}
+				/**
+				 * triggered when an node is deselected
+				 * @event
+				 * @name deselect_node.jstree
+				 * @param {Object} node
+				 * @param {Array} selected the current selection
+				 * @param {Object} event the event (if any) that triggered this deselect_node
+				 */
+				this.trigger('deselect_node', {
+					'node': obj,
+					'selected': this._data.core.selected,
+					'event': e
+				});
+				if (!supress_event) {
+					this.trigger('changed', {
+						'action': 'deselect_node',
+						'node': obj,
+						'selected': this._data.core.selected,
+						'event': e
+					});
+				}
+			}
+		},
+		/**
+		 * select all nodes in the tree
+		 * @name select_all([supress_event])
+		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
+		 * @trigger select_all.jstree, changed.jstree
+		 */
+		select_all: function (supress_event) {
+			var tmp = this._data.core.selected.concat([]),
+				i, j;
+			this._data.core.selected = this._model.data['#'].children_d.concat();
+			for (i = 0, j = this._data.core.selected.length; i < j; i++) {
+				if (this._model.data[this._data.core.selected[i]]) {
+					this._model.data[this._data.core.selected[i]].state.selected = true;
+				}
+			}
+			this.redraw(true);
+			/**
+			 * triggered when all nodes are selected
+			 * @event
+			 * @name select_all.jstree
+			 * @param {Array} selected the current selection
+			 */
+			this.trigger('select_all', {
+				'selected': this._data.core.selected
+			});
+			if (!supress_event) {
+				this.trigger('changed', {
+					'action': 'select_all',
+					'selected': this._data.core.selected,
+					'old_selection': tmp
+				});
+			}
+		},
+		/**
+		 * deselect all selected nodes
+		 * @name deselect_all([supress_event])
+		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
+		 * @trigger deselect_all.jstree, changed.jstree
+		 */
+		deselect_all: function (supress_event) {
+			var tmp = this._data.core.selected.concat([]),
+				i, j;
+			for (i = 0, j = this._data.core.selected.length; i < j; i++) {
+				if (this._model.data[this._data.core.selected[i]]) {
+					this._model.data[this._data.core.selected[i]].state.selected = false;
+				}
+			}
+			this._data.core.selected = [];
+			this.element.find('.jstree-clicked').removeClass('jstree-clicked');
+			/**
+			 * triggered when all nodes are deselected
+			 * @event
+			 * @name deselect_all.jstree
+			 * @param {Object} node the previous selection
+			 * @param {Array} selected the current selection
+			 */
+			this.trigger('deselect_all', {
+				'selected': this._data.core.selected,
+				'node': tmp
+			});
+			if (!supress_event) {
+				this.trigger('changed', {
+					'action': 'deselect_all',
+					'selected': this._data.core.selected,
+					'old_selection': tmp
+				});
+			}
+		},
+		/**
+		 * checks if a node is selected
+		 * @name is_selected(obj)
+		 * @param  {mixed}  obj
+		 * @return {Boolean}
+		 */
+		is_selected: function (obj) {
+			obj = this.get_node(obj);
+			if (!obj || obj.id === '#') {
+				return false;
+			}
+			return obj.state.selected;
+		},
+		/**
+		 * get an array of all selected nodes
+		 * @name get_selected([full])
+		 * @param  {mixed}  full if set to `true` the returned array will consist of the full node objects, otherwise - only IDs will be returned
+		 * @return {Array}
+		 */
+		get_selected: function (full) {
+			return full ? $.map(this._data.core.selected, $.proxy(function (i) {
+				return this.get_node(i);
+			}, this)) : this._data.core.selected;
+		},
+		/**
+		 * get an array of all top level selected nodes (ignoring children of selected nodes)
+		 * @name get_top_selected([full])
+		 * @param  {mixed}  full if set to `true` the returned array will consist of the full node objects, otherwise - only IDs will be returned
+		 * @return {Array}
+		 */
+		get_top_selected: function (full) {
+			var tmp = this.get_selected(true),
+				obj = {}, i, j, k, l;
+			for (i = 0, j = tmp.length; i < j; i++) {
+				obj[tmp[i].id] = tmp[i];
+			}
+			for (i = 0, j = tmp.length; i < j; i++) {
+				for (k = 0, l = tmp[i].children_d.length; k < l; k++) {
+					if (obj[tmp[i].children_d[k]]) {
+						delete obj[tmp[i].children_d[k]];
+					}
+				}
+			}
+			tmp = [];
+			for (i in obj) {
+				if (obj.hasOwnProperty(i)) {
+					tmp.push(i);
+				}
+			}
+			return full ? $.map(tmp, $.proxy(function (i) {
+				return this.get_node(i);
+			}, this)) : tmp;
+		},
+		/**
+		 * get an array of all bottom level selected nodes (ignoring selected parents)
+		 * @name get_top_selected([full])
+		 * @param  {mixed}  full if set to `true` the returned array will consist of the full node objects, otherwise - only IDs will be returned
+		 * @return {Array}
+		 */
+		get_bottom_selected: function (full) {
+			var tmp = this.get_selected(true),
+				obj = [],
+				i, j;
+			for (i = 0, j = tmp.length; i < j; i++) {
+				if (!tmp[i].children.length) {
+					obj.push(tmp[i].id);
+				}
+			}
+			return full ? $.map(obj, $.proxy(function (i) {
+				return this.get_node(i);
+			}, this)) : obj;
+		},
+	});
+}(jQuery);
++function($) {
+	'use strict';
+
+	$.extend($.jstree.core.prototype, {
 		/**
 		 * changes the theme
 		 * @name set_theme(theme_name [, theme_url])
@@ -3886,9 +3985,9 @@
 				}
 				theme_url = dir + '/' + theme_name + '/style.css';
 			}
-			if (theme_url && $.inArray(theme_url, themes_loaded) === -1) {
+			if (theme_url && $.inArray(theme_url, $.jstree._internal.themes_loaded) === -1) {
 				$('head').append('<' + 'link rel="stylesheet" href="' + theme_url + '" type="text/css" />');
-				themes_loaded.push(theme_url);
+				$.jstree._internal.themes_loaded.push(theme_url);
 			}
 			if (this._data.core.themes.name) {
 				this.element.removeClass('jstree-' + this._data.core.themes.name);
@@ -4110,107 +4209,16 @@
 			dom.children("a").children(".jstree-themeicon").removeClass('jstree-themeicon-hidden');
 			return true;
 		}
-	};
-
-	// helpers
-	$.vakata = {};
-	// reverse
-	$.fn.vakata_reverse = [].reverse;
-	// collect attributes
-	$.vakata.attributes = function (node, with_values) {
-		node = $(node)[0];
-		var attr = with_values ? {} : [];
-		if (node && node.attributes) {
-			$.each(node.attributes, function (i, v) {
-				if ($.inArray(v.nodeName.toLowerCase(), ['style', 'contenteditable', 'hasfocus', 'tabindex']) !== -1) {
-					return;
-				}
-				if (v.nodeValue !== null && $.trim(v.nodeValue) !== '') {
-					if (with_values) {
-						attr[v.nodeName] = v.nodeValue;
-					} else {
-						attr.push(v.nodeName);
-					}
-				}
-			});
-		}
-		return attr;
-	};
-	$.vakata.array_unique = function (array) {
-		var a = [],
-			i, j, l;
-		for (i = 0, l = array.length; i < l; i++) {
-			for (j = 0; j <= i; j++) {
-				if (array[i] === array[j]) {
-					break;
-				}
-			}
-			if (j === i) {
-				a.push(array[i]);
-			}
-		}
-		return a;
-	};
-	// remove item from array
-	$.vakata.array_remove = function (array, from, to) {
-		var rest = array.slice((to || from) + 1 || array.length);
-		array.length = from < 0 ? array.length + from : from;
-		array.push.apply(array, rest);
-		return array;
-	};
-	// remove item from array
-	$.vakata.array_remove_item = function (array, item) {
-		var tmp = $.inArray(item, array);
-		return tmp !== -1 ? $.vakata.array_remove(array, tmp) : array;
-	};
-	// browser sniffing
-	(function () {
-		var browser = {},
-			b_match = function (ua) {
-				ua = ua.toLowerCase();
-
-				var match = /(chrome)[ \/]([\w.]+)/.exec(ua) ||
-					/(webkit)[ \/]([\w.]+)/.exec(ua) ||
-					/(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
-					/(msie) ([\w.]+)/.exec(ua) ||
-					(ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua)) || [];
-				return {
-					browser: match[1] || "",
-					version: match[2] || "0"
-				};
-			},
-			matched = b_match(window.navigator.userAgent);
-		if (matched.browser) {
-			browser[matched.browser] = true;
-			browser.version = matched.version;
-		}
-		if (browser.chrome) {
-			browser.webkit = true;
-		} else if (browser.webkit) {
-			browser.safari = true;
-		}
-		$.vakata.browser = browser;
-	}());
-	if ($.vakata.browser.msie && $.vakata.browser.version < 8) {
-		$.jstree.defaults.core.animation = 0;
-	}
-}));
+	});
+}(jQuery);
 /**
  * ### Checkbox plugin
  *
  * This plugin renders checkbox icons in front of each node, making multiple selection much easier.
  * It also supports tri-state behavior, meaning that if a node has a few of its children checked it will be rendered as undetermined, and state will be propagated up.
  */
-
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.checkbox', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.checkbox) {
 		return;
@@ -4590,7 +4598,7 @@
 
 	// include the checkbox plugin by default
 	// $.jstree.defaults.plugins.push("checkbox");
-}));
+}(jQuery);
 /**
  * ### Contextmenu plugin
  *
@@ -4598,15 +4606,8 @@
  */
 // TODO: move logic outside of function + check multiple move
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.contextmenu', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.contextmenu) {
 		return;
@@ -5245,22 +5246,15 @@
 		});
 	}($));
 	// $.jstree.defaults.plugins.push("contextmenu");
-}));
+}(jQuery);
 /**
  * ### Drag'n'drop plugin
  *
  * Enables dragging and dropping of nodes in the tree, resulting in a move or copy operations.
  */
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.dnd', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.dnd) {
 		return;
@@ -5815,22 +5809,15 @@
 
 	// include the dnd plugin by default
 	// $.jstree.defaults.plugins.push("dnd");
-}));
+}(jQuery);
 /**
  * ### Search plugin
  *
  * Adds search functionality to jsTree.
  */
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.search', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.search) {
 		return;
@@ -6258,22 +6245,15 @@
 
 	// include the search plugin by default
 	// $.jstree.defaults.plugins.push("search");
-}));
+}(jQuery);
 /**
  * ### Sort plugin
  *
  * Autmatically sorts all siblings in the tree according to a sorting function.
  */
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.sort', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.sort) {
 		return;
@@ -6330,22 +6310,15 @@
 
 	// include the sort plugin by default
 	// $.jstree.defaults.plugins.push("sort");
-}));
+}(jQuery);
 /**
  * ### State plugin
  *
  * Saves the state of the tree (selected nodes, opened nodes) on the user's computer using available options (localStorage, cookies, etc)
  */
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.state', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.state) {
 		return;
@@ -6478,22 +6451,15 @@
 
 	// include the state plugin by default
 	// $.jstree.defaults.plugins.push("state");
-}));
+}(jQuery);
 /**
  * ### Types plugin
  *
  * Makes it possible to add predefined types for groups of nodes, which make it possible to easily control nesting rules and icon for each group.
  */
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.types', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.types) {
 		return;
@@ -6758,22 +6724,15 @@
 	};
 	// include the types plugin by default
 	// $.jstree.defaults.plugins.push("types");
-}));
+}(jQuery);
 /**
  * ### Unique plugin
  *
  * Enforces that no nodes with the same name can coexist as siblings.
  */
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.unique', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.unique) {
 		return;
@@ -6841,22 +6800,15 @@
 
 	// include the unique plugin by default
 	// $.jstree.defaults.plugins.push("unique");
-}));
+}(jQuery);
 /**
  * ### Wholerow plugin
  *
  * Makes each node appear block level. Making selection easier. May cause slow down for large trees in old browsers.
  */
 
-(function (factory) {
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.wholerow', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.wholerow) {
 		return;
@@ -6962,4 +6914,4 @@
 	};
 	// include the wholerow plugin by default
 	// $.jstree.defaults.plugins.push("wholerow");
-}));}));
+}(jQuery);

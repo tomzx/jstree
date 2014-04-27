@@ -4,18 +4,8 @@
  * This plugin renders checkbox icons in front of each node, making multiple selection much easier.
  * It also supports tri-state behavior, meaning that if a node has a few of its children checked it will be rendered as undetermined, and state will be propagated up.
  */
-/*globals jQuery, define, exports, require, document */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.checkbox', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
-	"use strict";
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.checkbox) {
 		return;
@@ -395,4 +385,4 @@
 
 	// include the checkbox plugin by default
 	// $.jstree.defaults.plugins.push("checkbox");
-}));
+}(jQuery);

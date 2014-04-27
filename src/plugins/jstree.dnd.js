@@ -3,18 +3,9 @@
  *
  * Enables dragging and dropping of nodes in the tree, resulting in a move or copy operations.
  */
-/*globals jQuery, define, exports, require, document */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.dnd', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
-	"use strict";
+
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.dnd) {
 		return;
@@ -569,4 +560,4 @@
 
 	// include the dnd plugin by default
 	// $.jstree.defaults.plugins.push("dnd");
-}));
+}(jQuery);

@@ -3,18 +3,9 @@
  *
  * Enforces that no nodes with the same name can coexist as siblings.
  */
-/*globals jQuery, define, exports, require */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.unique', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
-	"use strict";
+
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.unique) {
 		return;
@@ -82,4 +73,4 @@
 
 	// include the unique plugin by default
 	// $.jstree.defaults.plugins.push("unique");
-}));
+}(jQuery);

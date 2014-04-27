@@ -3,18 +3,9 @@
  *
  * Autmatically sorts all siblings in the tree according to a sorting function.
  */
-/*globals jQuery, define, exports, require */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.sort', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
-	"use strict";
+
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.sort) {
 		return;
@@ -71,4 +62,4 @@
 
 	// include the sort plugin by default
 	// $.jstree.defaults.plugins.push("sort");
-}));
+}(jQuery);

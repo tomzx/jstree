@@ -3,18 +3,9 @@
  *
  * Adds search functionality to jsTree.
  */
-/*globals jQuery, define, exports, require, document */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.search', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
-	"use strict";
+
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.search) {
 		return;
@@ -442,4 +433,4 @@
 
 	// include the search plugin by default
 	// $.jstree.defaults.plugins.push("search");
-}));
+}(jQuery);

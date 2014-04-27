@@ -3,18 +3,9 @@
  *
  * Saves the state of the tree (selected nodes, opened nodes) on the user's computer using available options (localStorage, cookies, etc)
  */
-/*globals jQuery, define, exports, require */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.state', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
-	"use strict";
+
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.state) {
 		return;
@@ -147,4 +138,4 @@
 
 	// include the state plugin by default
 	// $.jstree.defaults.plugins.push("state");
-}));
+}(jQuery);

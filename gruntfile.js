@@ -7,19 +7,27 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       dist: {
-        src: ['src/<%= pkg.name %>.js', 'src/<%= pkg.name %>.*.js'],
+        src: [
+          'src/jstree._bootstrap.js',
+          'src/jstree._helpers.js',
+          'src/jstree.defaults.core.js',
+          'src/jstree.core.js',
+          'src/jstree.prototype.js',
+          'src/core/*.js',
+          'src/plugins/jstree.*.js',
+        ],
         dest: 'dist/<%= pkg.name %>.js'
       }
     },
     copy: {
-      libs : {
-        files : [
-          { expand: true, cwd : 'libs/', src: ['*'], dest: 'dist/libs/' }
+      libs: {
+        files: [
+          { expand: true, cwd: 'libs/', src: ['*'], dest: 'dist/libs/' }
         ]
       },
-      docs : {
-        files : [
-          { expand: true, cwd : 'dist/', src: ['**/*'], dest: 'docs/assets/dist/' }
+      docs: {
+        files: [
+          { expand: true, cwd: 'dist/', src: ['**/*'], dest: 'docs/assets/dist/' }
         ]
       }
     },
@@ -49,27 +57,28 @@ module.exports = function(grunt) {
     },
     jshint: {
       options: {
-        'curly' : true,
-        'eqeqeq' : true,
-        'latedef' : true,
-        'newcap' : true,
-        'noarg' : true,
-        'sub' : true,
-        'undef' : true,
-        'boss' : true,
-        'eqnull' : true,
-        'browser' : true,
-        'trailing' : true,
-        'globals' : {
-          'console' : true,
-          'jQuery' : true,
-          'browser' : true,
-          'XSLTProcessor' : true,
-          'ActiveXObject' : true
+        'boss': true,
+        'browser': true,
+        'curly': true,
+        'expr': true,
+        'eqeqeq': true,
+        'eqnull': true,
+        'latedef': true,
+        'newcap': true,
+        'noarg': true,
+        'sub': true,
+        'trailing': true,
+        'undef': true,
+        'globals': {
+          'console': true,
+          'jQuery': true,
+          'browser': true,
+          'XSLTProcessor': true,
+          'ActiveXObject': true,
         }
       },
-      beforeconcat: ['src/<%= pkg.name %>.js', 'src/<%= pkg.name %>.*.js'],
-      afterconcat: ['dist/<%= pkg.name %>.js']
+      beforeconcat: ['src/jstree.*.js', 'src/plugins/jstree.*.js'],
+      afterconcat: ['dist/jstree.js']
     },
     dox: {
       files: {
@@ -77,42 +86,36 @@ module.exports = function(grunt) {
         dest: 'docs'
       }
     },
-    amd : {
-      files: {
-        src: ['dist/jstree.js'],
-        dest: 'dist/jstree.js'
-      }
-    },
     less: {
       production: {
-        options : {
-          cleancss : true,
-          compress : true
+        options: {
+          cleancss: true,
+          compress: true
         },
         files: {
-          "dist/themes/default/style.min.css" : "src/themes/default/style.less"
+          "dist/themes/default/style.min.css": "src/themes/default/style.less"
         }
       },
       development: {
         files: {
-          "src/themes/default/style.css" : "src/themes/default/style.less",
-          "dist/themes/default/style.css" : "src/themes/default/style.less"
+          "src/themes/default/style.css": "src/themes/default/style.less",
+          "dist/themes/default/style.css": "src/themes/default/style.less"
         }
       }
     },
     watch: {
-      js : {
+      js: {
         files: ['src/**/*.js'],
         tasks: ['js'],
-        options : {
-          atBegin : true
+        options: {
+          atBegin: true
         }
       },
-      css : {
+      css: {
         files: ['src/**/*.less','src/**/*.png','src/**/*.gif'],
         tasks: ['css'],
-        options : {
-          atBegin : true
+        options: {
+          atBegin: true
         }
       },
     },
@@ -120,7 +123,7 @@ module.exports = function(grunt) {
       dynamic: {
         options: {                       // Target options
           optimizationLevel: 7,
-          pngquant : true
+          pngquant: true
         },
         files: [{
           expand: true,                  // Enable dynamic expansion
@@ -141,22 +144,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-imagemin');
 
-  grunt.registerMultiTask('amd', 'Clean up AMD', function () {
-    var s, d;
-    this.files.forEach(function (f) {
-      s = f.src;
-      d = f.dest;
-    });
-    grunt.file.copy(s, d, {
-      process: function (contents) {
-        contents = contents.replace(/\s*if\(\$\.jstree\.plugins\.[a-z]+\)\s*\{\s*return;\s*\}/ig, '');
-        contents = contents.replace(/\/\*globals[^\/]+\//ig, '');
-        //contents = contents.replace(/\s*("|')use strict("|');/g, '');
-        return grunt.file.read('src/intro.js') + contents + grunt.file.read('src/outro.js');
-      }
-    });
-  });
-
   grunt.registerMultiTask('dox', 'Generate dox output ', function() {
     var exec = require('child_process').exec,
         path = require('path'),
@@ -176,8 +163,8 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['jshint:beforeconcat','concat','amd','jshint:afterconcat','copy:libs','uglify','less','imagemin','copy:docs','qunit','dox']);
-  grunt.registerTask('js', ['concat','amd','uglify']);
+  grunt.registerTask('default', ['jshint:beforeconcat','concat','jshint:afterconcat','copy:libs','uglify','less','imagemin','copy:docs','qunit','dox']);
+  grunt.registerTask('js', ['concat','uglify']);
   grunt.registerTask('css', ['copy','less']);
 
 };

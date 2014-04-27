@@ -4,18 +4,9 @@
  * Shows a context menu when a node is right-clicked.
  */
 // TODO: move logic outside of function + check multiple move
-/*globals jQuery, define, exports, require, document */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.contextmenu', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
-	"use strict";
+
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.contextmenu) {
 		return;
@@ -654,4 +645,4 @@
 		});
 	}($));
 	// $.jstree.defaults.plugins.push("contextmenu");
-}));
+}(jQuery);

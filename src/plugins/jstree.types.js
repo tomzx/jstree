@@ -3,18 +3,9 @@
  *
  * Makes it possible to add predefined types for groups of nodes, which make it possible to easily control nesting rules and icon for each group.
  */
-/*globals jQuery, define, exports, require */
-(function (factory) {
-	"use strict";
-	if (typeof define === 'function' && define.amd) {
-		define('jstree.types', ['jquery', 'jstree'], factory);
-	} else if (typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
-	} else {
-		factory(jQuery, jQuery.jstree);
-	}
-}(function ($, jstree, undefined) {
-	"use strict";
+
++function($) {
+	'use strict';
 
 	if ($.jstree.plugins.types) {
 		return;
@@ -279,4 +270,4 @@
 	};
 	// include the types plugin by default
 	// $.jstree.defaults.plugins.push("types");
-}));
+}(jQuery);
